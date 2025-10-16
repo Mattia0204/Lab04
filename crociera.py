@@ -51,23 +51,26 @@ class Crociera:
                         print("Riga fuori formato")
             print(f'File "{file_path}" caricato correttamente \n')
         except FileNotFoundError:
-            print(f"Errore: il file {file_path} non esiste.")
-            return None                     # Se il file non esiste, restituisce None per indicare errore
+            raise                     # Se il file non esiste, richiama except nel main
 
     def assegna_passeggero_a_cabina(self, codice_cabina, codice_passeggero):
-        #passeggeri = []
-        #passeggeri = [passeggero.codPas for passeggero in self.lista_passeggeri]
-        if codice_passeggero not in self.lista_passeggeri:
-            return print("Passeggero non esistente")
-        #cabine = []
-        #cabine = [cabina.codCab for cabina in self.lista_cabine]
-        if codice_cabina not in self.lista_cabine:
-            return print("Cabina non esistente")
-        if codice_cabina in self.cabine_occupate:
-            return print("Cabina già prenotata")
-        else:
-            self.cabine_occupate.append(codice_cabina, codice_passeggero)
-            return print(f"Il passeggero {codice_passeggero} è stato assegnato alla cabina {codice_cabina}")
+        passeggeri = [passeggero.codPas for passeggero in self.lista_passeggeri]
+        prenotata = True
+        if codice_passeggero not in passeggeri:
+            raise ValueError("Passeggero non esistente")
+        cabine = [cabina.codCab for cabina in self.lista_cabine]
+        if codice_cabina not in cabine:
+            raise ValueError("Cabina non esistente")
+        for passeggeri_occupanti, cabine_occupate in self.cabine_occupate.items():
+            if codice_cabina in cabine_occupate:
+                prenotata = False
+                raise ValueError("Cabina già prenotata")
+            if codice_passeggero in passeggeri_occupanti:
+                prenotata = False
+                raise ValueError("Il passeggero ha già una cabina prenotata")
+        #if prenotata:
+        self.cabine_occupate[codice_passeggero] = codice_cabina
+        return print(f"Il passeggero {codice_passeggero} è stato assegnato alla cabina {codice_cabina}")
 
     def cabine_ordinate_per_prezzo(self):
         cabine_ordinate = sorted(self.lista_cabine, key=operator.attrgetter('prezzo'))        # ordina per attributo marca
@@ -76,11 +79,16 @@ class Crociera:
 
     def elenca_passeggeri(self):
         for p in self.lista_passeggeri:
-            if p.codPas not in self.cabine_occupate:
-                print(p)
+            cabina_corrispondente = ""
+            for passeggieri_occupanti, cabine_occupate in self.cabine_occupate.items():
+                if passeggieri_occupanti == p.codPas:
+                    cabina_corrispondente = cabine_occupate
+            if cabina_corrispondente == "":
+                print(p, " non ha cabina assegnata")
             else:
-                codice_corrispondente = self.cabine_occupate[p.codPas]
-                print(p, "ha come cabina assegnata: ", codice_corrispondente)
+                for c in self.lista_cabine:
+                    if cabina_corrispondente == c.codCab:
+                        print(p, " ha come cabina assegnata: ", c)
 
 
 

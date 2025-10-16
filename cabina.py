@@ -38,7 +38,7 @@ class Cabina:
         self._prezzo = prezzo
 
     def __str__(self):
-        return f"{self._codCab}: Standard | {self.numLetti} letti - Ponte {self.ponte} - Prezzo {self.prezzo}€ - Disponibile"
+        return f"{self._codCab}: Standard | {self.numLetti} letti - Ponte {self.ponte} - Prezzo {self.prezzo}€"
 
 
 
