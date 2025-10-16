@@ -1,13 +1,17 @@
 import csv
 import operator
 
+from passeggero import Passeggero
 from cabina import Cabina
+from cabina_animali import Cabina_animali
+from cabina_deluxe import Cabina_deluxe
 
 class Crociera:
     def __init__(self, nome):
         self._nome = nome
         self.lista_cabine = []
         self.lista_passeggeri = []
+        self.cabine_occupate = []
 
     @property
     def nome(self):
@@ -23,39 +27,43 @@ class Crociera:
             with open(file_path, "r", encoding="utf-8") as file:    # Apre il file in modalità lettura con codifica UTF-8
                 reader = csv.reader(file)                           # crea il reader CSV
                 for line in reader:                                 # Scorre ogni riga del file
-                    lettera = ''.join(filter(str.isalpha, line[0])) # estrae la parte alfabetica del codice
-                    if lettera == "CAB":
-                        if len(line)==4:
-                            cabina = cabina(codCab=line[0], numLetti=line[1],ponte=line[2], prezzo=line[3])
+                    if len(line) == 3:
+                        passeggero = Passeggero(codice, letti, ponte)
+                        self.lista_passeggeri.append(passeggero)
+                    elif len(line) == 4:
+                        codice, letti, ponte, prezzo = line
+                        cabina = Cabina(codice, letti, ponte, prezzo)
+                        self.lista_cabine.append(cabina)
+                    elif len(line) == 5:
+                        codice, letti, ponte, prezzo, tipo = line
+                        numero = ''.join(filter(str.isdigit, tipo))
+                        if numero == '':
+                            cabina = Cabina_deluxe(codice, letti, ponte, prezzo, tipo)
                             self.lista_cabine.append(cabina)
-                        elif len(line)==5:
-                            numero = ''.join(filter(str.isdigit, line[4]))
-                            if numero == '':
-                                cabina = cabina_deluxe(codCab=line[0], numLetti=line[1], ponte=line[2], prezzo=line[3], tipo=line[4])
-                                self.lista_cabine.append(cabina)
-                            else:
-                                cabina = cabina_animali(codCab=line[0], numLetti=line[1], ponte=line[2], prezzo=line[3], numAnimali=line[4])
-                                self.lista_cabine.append(cabina)
                         else:
-                            print("Riga fuori formato")
-                    elif lettera == "P":
-
-
-
-
-                        pass
-
-
-
-
+                            numero = int(numero)
+                            cabina = Cabina_animali(codice, letti, ponte, prezzo, numero)
+                            self.lista_cabine.append(cabina)
+                    else:
+                        print("Riga fuori formato")
             print(f'File "{file_path}" caricato correttamente \n')
         except FileNotFoundError:
             print(f"Errore: il file {file_path} non esiste.")
             return None                     # Se il file non esiste, restituisce None per indicare errore
 
     def assegna_passeggero_a_cabina(self, codice_cabina, codice_passeggero):
-        """Associa una cabina a un passeggero"""
-        # TODO
+        passeggeri = [passeggero.codPas for passeggero in self.lista_passeggeri]
+        if codice_passeggero not in passeggeri:
+            return print("Passeggero non esistente")
+        cabine = [cabina.codCab for cabina in self.lista_cabine]
+        if codice_cabina not in cabine:
+            return print("Cabina non esistente")
+        if self.cabine_occupate in cabine:
+            return print("Cabina già prenotata")
+        else:
+            t = (codice_cabina, codice_passeggero)
+            self.cabine_occupate.append(t)
+            return print(f"Il passeggero {codice_passeggero} è stato assegnato alla cabina {codice_cabina}")
 
     def cabine_ordinate_per_prezzo(self):
         cabine_ordinate = sorted(self.lista_cabine, key=operator.attrgetter('prezzo'))        # ordina per attributo marca
@@ -63,6 +71,16 @@ class Crociera:
 
 
     def elenca_passeggeri(self):
-        """Stampa l'elenco dei passeggeri mostrando, per ognuno, la cabina a cui è associato, quando applicabile """
-        # TODO
+        for p in self.lista_passeggeri:
+            codice_corrispondente = None
+            if p.codPas not in self.cabine_occupate:
+                print(p.passeggero)
+            else:
+                for x, y in self.cabine_occupate:
+                    if x == p.codPas:
+                        codice_corrispondente = y
+                print(p.passeggero, "ha come cabina assegnata: ", codice_corrispondente.cabina)
+
+
+
 

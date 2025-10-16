@@ -6,7 +6,7 @@ class Cabina_animali(Cabina):
         self._numAnimali = numAnimali
 
     def __str__(self):
-        return f"{super().__str__()}, {self._numAnimali}"
+        return f"{super().__str__()} - Max animali: {self._numAnimali}"
 
     def aumenta_prezzo(self):
         self._prezzo = self._prezzo * (1 + (0.1 * self._numAnimali))
