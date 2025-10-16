@@ -27,3 +27,6 @@ class Passeggero:
     @cognome.setter
     def cognome(self, cognome):
         self._cognome = cognome
+
+    def __str__(self):
+        return f'{self.codPas} {self.nome} {self.cognome}'

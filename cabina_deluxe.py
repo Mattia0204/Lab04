@@ -6,7 +6,7 @@ class Cabina_deluxe(Cabina):
         self._tipo = tipo
 
     def __str__(self):
-        return f"{super().__str__()}, {self._tipo}"
+        return f"{super().__str__()} - {self._tipo}"
 
     def aumenta_prezzo(self):
         self._prezzo = self._prezzo * (1.2)

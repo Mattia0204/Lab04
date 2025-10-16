@@ -11,7 +11,7 @@ class Crociera:
         self._nome = nome
         self.lista_cabine = []
         self.lista_passeggeri = []
-        self.cabine_occupate = []
+        self.cabine_occupate = {}
 
     @property
     def nome(self):
@@ -28,21 +28,24 @@ class Crociera:
                 reader = csv.reader(file)                           # crea il reader CSV
                 for line in reader:                                 # Scorre ogni riga del file
                     if len(line) == 3:
-                        passeggero = Passeggero(codice, letti, ponte)
+                        codice, nome, cognome = line
+                        passeggero = Passeggero(codice, nome, cognome)
                         self.lista_passeggeri.append(passeggero)
                     elif len(line) == 4:
                         codice, letti, ponte, prezzo = line
-                        cabina = Cabina(codice, letti, ponte, prezzo)
+                        cabina = Cabina(codice, int(letti), int(ponte), int(prezzo))
                         self.lista_cabine.append(cabina)
                     elif len(line) == 5:
                         codice, letti, ponte, prezzo, tipo = line
                         numero = ''.join(filter(str.isdigit, tipo))
                         if numero == '':
-                            cabina = Cabina_deluxe(codice, letti, ponte, prezzo, tipo)
+                            cabina = Cabina_deluxe(codice, int(letti), int(ponte), int(prezzo), tipo)
+                            cabina.aumenta_prezzo()
                             self.lista_cabine.append(cabina)
                         else:
                             numero = int(numero)
-                            cabina = Cabina_animali(codice, letti, ponte, prezzo, numero)
+                            cabina = Cabina_animali(codice, int(letti), int(ponte), int(prezzo), int(numero))
+                            cabina.aumenta_prezzo()
                             self.lista_cabine.append(cabina)
                     else:
                         print("Riga fuori formato")
@@ -52,17 +55,18 @@ class Crociera:
             return None                     # Se il file non esiste, restituisce None per indicare errore
 
     def assegna_passeggero_a_cabina(self, codice_cabina, codice_passeggero):
-        passeggeri = [passeggero.codPas for passeggero in self.lista_passeggeri]
-        if codice_passeggero not in passeggeri:
+        #passeggeri = []
+        #passeggeri = [passeggero.codPas for passeggero in self.lista_passeggeri]
+        if codice_passeggero not in self.lista_passeggeri:
             return print("Passeggero non esistente")
-        cabine = [cabina.codCab for cabina in self.lista_cabine]
-        if codice_cabina not in cabine:
+        #cabine = []
+        #cabine = [cabina.codCab for cabina in self.lista_cabine]
+        if codice_cabina not in self.lista_cabine:
             return print("Cabina non esistente")
-        if self.cabine_occupate in cabine:
+        if codice_cabina in self.cabine_occupate:
             return print("Cabina già prenotata")
         else:
-            t = (codice_cabina, codice_passeggero)
-            self.cabine_occupate.append(t)
+            self.cabine_occupate.append(codice_cabina, codice_passeggero)
             return print(f"Il passeggero {codice_passeggero} è stato assegnato alla cabina {codice_cabina}")
 
     def cabine_ordinate_per_prezzo(self):
@@ -72,14 +76,11 @@ class Crociera:
 
     def elenca_passeggeri(self):
         for p in self.lista_passeggeri:
-            codice_corrispondente = None
             if p.codPas not in self.cabine_occupate:
-                print(p.passeggero)
+                print(p)
             else:
-                for x, y in self.cabine_occupate:
-                    if x == p.codPas:
-                        codice_corrispondente = y
-                print(p.passeggero, "ha come cabina assegnata: ", codice_corrispondente.cabina)
+                codice_corrispondente = self.cabine_occupate[p.codPas]
+                print(p, "ha come cabina assegnata: ", codice_corrispondente)
 
 
 
